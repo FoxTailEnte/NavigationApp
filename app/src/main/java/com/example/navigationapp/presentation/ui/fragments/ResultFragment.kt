@@ -16,9 +16,7 @@ class ResultFragment : BaseFragment<FragmentResultBinding>() {
             requireActivity().supportFragmentManager.popBackStack()
         }
         binding.toolbar.materialToolbar.setOnMenuItemClickListener {
-            requireActivity().setContentFragment {
-                YandexFragment()
-            }
+            requireActivity().setContentFragment(YandexFragment())
             true
         }
     }

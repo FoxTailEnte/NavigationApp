@@ -20,9 +20,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
 
     override fun setupListener() = with(binding) {
         btResult.setOnClickListener {
-            requireActivity().setContentFragment {
-                ResultFragment()
-            }
+            requireActivity().setContentFragment(ResultFragment())
         }
     }
 }
