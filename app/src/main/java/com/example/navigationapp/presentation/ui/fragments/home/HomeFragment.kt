@@ -1,31 +1,20 @@
 package com.example.navigationapp.presentation.ui.fragments.home
 
-import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
-import android.location.LocationListener
-import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import com.example.navigationapp.R
 import com.example.navigationapp.databinding.FragmentMainBinding
 import com.example.navigationapp.presentation.ui.base.BaseFragment
 import com.example.navigationapp.presentation.ui.fragments.result.ResultFragment
-import com.example.navigationapp.presentation.ui.main.MainActivity
 import com.example.navigationapp.repository.utils.setContentFragment
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
-
+@AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentMainBinding>() {
-    private val vm: HomeViewModel by viewModels({ requireActivity() }) { HomeViewModelFactory() }
-    private lateinit var locationManager: LocationManager
-    private val locationListener: LocationListener = LocationListener { location ->
-        val latitude = location.latitude
-        val longitude = location.longitude
-        Log.d("MyLog", "$latitude $longitude")
-    }
-
+    private val vm: HomeViewModel by viewModels()
 
     override fun initializeBinding(): FragmentMainBinding =
         FragmentMainBinding.inflate(layoutInflater)
@@ -34,6 +23,7 @@ class HomeFragment : BaseFragment<FragmentMainBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupListener()
+        setState()
     }
 
     override fun setupListener() = with(binding) {
@@ -41,30 +31,35 @@ class HomeFragment : BaseFragment<FragmentMainBinding>() {
             requireActivity().setContentFragment(ResultFragment())
         }
         btStart.setOnClickListener {
-            getPosition()
+            vm.startGetLocation()
+        }
+        btStop.setOnClickListener {
+            vm.stopLocation()
         }
     }
 
-    private fun getPosition() {
-        locationManager =
-            requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                0L,
-                0f,
-                locationListener
-            )
-        } else {
-            val activity = activity as MainActivity
-            activity.getPermission()
+    private fun setState() = with(binding) {
+        lifecycleScope.launch {
+            vm.stateFlow.collect {
+                when(it) {
+                    "Start" -> {
+                        btStart.setBackgroundColor( resources.getColor(R.color.green))
+                        btStart.isEnabled = false
+                        btStart.isClickable = false
+                        btStop.setBackgroundColor( resources.getColor(R.color.grey))
+                        btStop.isEnabled = true
+                        btStop.isClickable = true
+                    }
+                    "Stop" -> {
+                        btStop.setBackgroundColor( resources.getColor(R.color.red))
+                        btStop.isEnabled = false
+                        btStop.isClickable = false
+                        btStart.setBackgroundColor( resources.getColor(R.color.grey))
+                        btStart.isEnabled = true
+                        btStart.isClickable = true
+                    }
+                }
+            }
         }
     }
 }

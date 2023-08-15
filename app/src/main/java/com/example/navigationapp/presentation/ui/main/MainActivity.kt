@@ -9,7 +9,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.navigationapp.R
 import com.example.navigationapp.databinding.ActivityMainBinding
 import com.example.navigationapp.presentation.ui.fragments.home.HomeFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var pLauncher: ActivityResultLauncher<Array<String>>
