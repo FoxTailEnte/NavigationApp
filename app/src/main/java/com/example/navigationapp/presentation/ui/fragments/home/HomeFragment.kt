@@ -1,15 +1,24 @@
 package com.example.navigationapp.presentation.ui.fragments.home
 
+import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.navigationapp.R
+import com.example.navigationapp.databinding.AlertDialogLayoutBinding
 import com.example.navigationapp.databinding.FragmentMainBinding
 import com.example.navigationapp.presentation.ui.base.BaseFragment
 import com.example.navigationapp.presentation.ui.fragments.result.ResultFragment
 import com.example.navigationapp.repository.utils.setContentFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -24,37 +33,101 @@ class HomeFragment : BaseFragment<FragmentMainBinding>() {
         super.onViewCreated(view, savedInstanceState)
         setupListener()
         setState()
+        permissionListener()
+        setLocation()
     }
 
     override fun setupListener() = with(binding) {
         btResult.setOnClickListener {
-            requireActivity().setContentFragment(ResultFragment())
+            navigateToResult()
         }
         btStart.setOnClickListener {
-            vm.startGetLocation()
+            checkPermission()
         }
         btStop.setOnClickListener {
             vm.stopLocation()
         }
     }
 
+    private fun checkPermission() {
+        vm.checkPermission()
+    }
+
+    private fun navigateToResult() {
+        requireActivity().setContentFragment(ResultFragment())
+    }
+
+    private fun permissionListener() {
+        CoroutineScope(Dispatchers.Main).launch {
+            vm.permissionState.collectLatest {
+                if (it) vm.startGetLocation()
+                else getUserSettingsPermission()
+            }
+        }
+    }
+
+    private fun getUserSettingsPermission() {
+        val dialogBinding = AlertDialogLayoutBinding.inflate(layoutInflater)
+        val builder = AlertDialog.Builder(requireContext())
+        val dialog = builder.setView(dialogBinding.root).show()
+        dialogBinding.negativeButton.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialogBinding.positiveButton.setOnClickListener {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri = Uri.fromParts("package", requireContext().packageName, null)
+            intent.data = uri
+            startActivity(intent)
+            dialog.dismiss()
+        }
+    }
+
+    private fun setLocation() {
+        lifecycleScope.launch {
+            vm.locationState.collect {
+                binding.textView.text = it
+            }
+        }
+    }
+
     private fun setState() = with(binding) {
         lifecycleScope.launch {
-            vm.stateFlow.collect {
-                when(it) {
-                    "Start" -> {
-                        btStart.setBackgroundColor( resources.getColor(R.color.green))
+            vm.state.collect {
+                when (it) {
+                    HomeViewModel.BtState.START -> {
+                        btStart.setBackgroundColor(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.green
+                            )
+                        )
                         btStart.isEnabled = false
                         btStart.isClickable = false
-                        btStop.setBackgroundColor( resources.getColor(R.color.grey))
+                        btStop.setBackgroundColor(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.grey
+                            )
+                        )
                         btStop.isEnabled = true
                         btStop.isClickable = true
                     }
-                    "Stop" -> {
-                        btStop.setBackgroundColor( resources.getColor(R.color.red))
+
+                    HomeViewModel.BtState.STOP -> {
+                        btStop.setBackgroundColor(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.red
+                            )
+                        )
                         btStop.isEnabled = false
                         btStop.isClickable = false
-                        btStart.setBackgroundColor( resources.getColor(R.color.grey))
+                        btStart.setBackgroundColor(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.grey
+                            )
+                        )
                         btStart.isEnabled = true
                         btStart.isClickable = true
                     }

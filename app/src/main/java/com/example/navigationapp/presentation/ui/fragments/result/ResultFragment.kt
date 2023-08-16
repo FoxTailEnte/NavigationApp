@@ -20,6 +20,11 @@ class ResultFragment : BaseFragment<FragmentResultBinding>() {
         binding.toolbar.materialToolbar.setNavigationOnClickListener {
             requireActivity().supportFragmentManager.popBackStack()
         }
+
+
+
+
+
         binding.toolbar.materialToolbar.setOnMenuItemClickListener {
             requireActivity().setContentFragment(YandexFragment())
             true

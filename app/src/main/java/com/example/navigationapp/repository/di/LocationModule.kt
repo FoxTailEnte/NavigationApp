@@ -7,7 +7,6 @@ import com.example.navigationapp.repository.location.LocationUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
@@ -20,8 +19,8 @@ class LocationModule {
 
     @Provides
     @Singleton
-    fun provideLocation(context: Context, locationManager: LocationManager, ioDispatcher: CoroutineDispatcher): LocationUseCase =
-        Location(context, locationManager, ioDispatcher)
+    fun provideLocation(context: Context): LocationUseCase =
+        Location(context)
 
     @Provides
     @Singleton

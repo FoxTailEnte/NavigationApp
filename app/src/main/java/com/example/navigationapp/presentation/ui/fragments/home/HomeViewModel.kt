@@ -1,34 +1,48 @@
 package com.example.navigationapp.presentation.ui.fragments.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.navigationapp.repository.location.Location
 import com.example.navigationapp.repository.location.LocationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val location: LocationUseCase
-): ViewModel() {
-    val stateFlow = MutableStateFlow("Stop")
+) : ViewModel() {
+    val locationState = MutableStateFlow("0")
+    val permissionState = MutableSharedFlow<Boolean>()
+    val state = MutableStateFlow(BtState.STOP)
+
 
     fun startGetLocation() {
-        stateFlow.value = "Start"
+        state.value = BtState.START
         viewModelScope.launch {
-            val test = location.getPosition().collect {
-                Log.d("MyLog", "$it")
+            location.getPosition().collect {
+                locationState.value = it
+            }
+        }
+    }
 
+    fun checkPermission() {
+        viewModelScope.launch {
+            location.checkPermission().collect {
+                permissionState.emit(it)
             }
         }
     }
 
     fun stopLocation() {
-        stateFlow.value = "Stop"
+        state.value = BtState.STOP
+        locationState.value = "0"
+        location.stopGettingLocation()
+    }
+
+    enum class BtState {
+        START,
+        STOP
     }
 }
