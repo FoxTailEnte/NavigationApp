@@ -17,16 +17,6 @@ class HomeViewModel @Inject constructor(
     val permissionState = MutableSharedFlow<Boolean>()
     val state = MutableStateFlow(BtState.STOP)
 
-
-    fun startGetLocation() {
-        state.value = BtState.START
-        viewModelScope.launch {
-            location.getPosition().collect {
-                locationState.value = it
-            }
-        }
-    }
-
     fun checkPermission() {
         viewModelScope.launch {
             location.checkPermission().collect {

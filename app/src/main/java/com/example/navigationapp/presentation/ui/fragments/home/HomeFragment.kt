@@ -14,6 +14,7 @@ import com.example.navigationapp.databinding.AlertDialogLayoutBinding
 import com.example.navigationapp.databinding.FragmentMainBinding
 import com.example.navigationapp.presentation.ui.base.BaseFragment
 import com.example.navigationapp.presentation.ui.fragments.result.ResultFragment
+import com.example.navigationapp.repository.location.LocationService
 import com.example.navigationapp.repository.utils.setContentFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -60,7 +61,10 @@ class HomeFragment : BaseFragment<FragmentMainBinding>() {
     private fun permissionListener() {
         CoroutineScope(Dispatchers.Main).launch {
             vm.permissionState.collectLatest {
-                if (it) vm.startGetLocation()
+                if (it) {
+                    val serviceIntent = Intent(requireContext(), LocationService::class.java)
+                    ContextCompat.startForegroundService(requireContext(), serviceIntent)
+                }
                 else getUserSettingsPermission()
             }
         }

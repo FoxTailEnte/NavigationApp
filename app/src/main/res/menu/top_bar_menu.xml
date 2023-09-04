@@ -7,4 +7,11 @@
         android:icon="@drawable/baseline_map"
         android:contentDescription="@string/menu_content_description"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/del"
+        android:title="@string/menu_del"
+        android:icon="@drawable/del_all_result"
+        android:contentDescription="@string/menu_content_description_for_del"
+        app:showAsAction="ifRoom" />
 </menu>

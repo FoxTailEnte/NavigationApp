@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.example.navigationapp"
-    compileSdk = 34
+    compileSdk = 33
 
     defaultConfig {
         applicationId = "com.example.navigationapp"
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
 
@@ -71,4 +71,8 @@ dependencies {
 
     //Location
     implementation ("com.google.android.gms:play-services-location:17.1.0")
+
+    //Room
+    implementation("androidx.room:room-ktx:2.5.2")
+    kapt("androidx.room:room-compiler:2.5.2")
 }

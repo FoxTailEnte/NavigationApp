@@ -2,7 +2,9 @@
     <string name="app_name">Navigation App</string>
     <!--Menu-->
     <string name="menu_title">Yandex</string>
+    <string name="menu_del">Delete</string>
     <string name="menu_content_description">Yandex</string>
+    <string name="menu_content_description_for_del">Delete</string>
     <!--MainFragment-->
     <string name="main_start">Start</string>
     <string name="main_stop">Stop</string>
